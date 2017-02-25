@@ -1,7 +1,7 @@
 ---
 layout:     post
-title:      "首篇博客“
-subtitle:   ”开始开荒“
+title:      "首篇博客"
+subtitle:   "开始开荒" 
 date:   2017-02-25
 author: "wulongfei"
 tags:
