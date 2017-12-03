@@ -83,7 +83,7 @@ Unity设置里: File->BuildSetting->Android->PlayerSetting->Device Filter，这�
 2. 程序在需要时加载动态库
 3. 所有进程共享一份动态库
 
-首先搞清楚动态库，也就是so文件后。我就更加不明白了，既然so文件是自己需要时加载，为啥360SDk自带的so文件会导致Unity报错？
+首先搞清楚动态库，也就是so文件后。我就更加不明白了，既然so文件是自己需要时加载，为啥360SDK自带的so文件会导致Unity报错？
 
 # ABI简介
 不同的CPU对应不同的指令集，为了兼容不同的CPU，在生成动态文件时，可以指定不同的CPU生成对应的文件。文件对应的类型就是API(Application binary interface)。具体文档参考[这里](https://developer.android.com/ndk/guides/abis.html)。
@@ -91,10 +91,10 @@ Unity设置里: File->BuildSetting->Android->PlayerSetting->Device Filter，这�
 为不同类型CPU设备生成对应的动态文件，如果不指定生成对应CPU架构的APP，所有动态文件将包含在APP中。
 
 程序运行时如何找到对应的动态库？
-1. 指定路径加载
-2. 去指定的路径加载
+1. 默认路径加载
+2. 指定的路径加载
 
-Android APP在安装是会生成如下目录：
+Android APP在安装时会生成如下目录：
 ```java
 /data/data/<package_name>/lib/lib<name>.so
 list 我们应用，目录如下：
@@ -114,6 +114,5 @@ libxlua.so
 
 # 刨根问底
 测试使用的一加5手机，小米5，都有问题，骁龙825和骁龙820肯定是支持arm64-v8a。如果是360 SDK自己使用这些库那肯定没有问题。为啥Unity会报错？只能说Unity在启动时加载了所有放在lib目录下的库。由于so文件带有cpu使用信息，Unity只支持armabi-v7a，x86。这样整个问题算是清楚了。
-
 
 
