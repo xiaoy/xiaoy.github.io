@@ -61,15 +61,12 @@ p'=T(v_x, v_y, v_z) . p =
 0 & 0 & 1 & v_z \\
 0 & 0 & 0 & 1
 \end{bmatrix}
-
 \begin{bmatrix}
 p_x \\
 p_y \\
 p_z \\
 1
-\end{bmatrix}
-
-=
+\end{bmatrix}=
 \begin{bmatrix}
 p_x + v_x \\
 p_y + v_y \\
@@ -87,7 +84,6 @@ s_x & 0 & 0 & 0\\
 0 & 0 & s_z & 0\\
 0 & 0 & 0 & 1
 \end{bmatrix}
-
 \begin{bmatrix}
 p_x \\
 p_y \\
