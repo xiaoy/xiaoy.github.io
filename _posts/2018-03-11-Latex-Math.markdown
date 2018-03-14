@@ -46,7 +46,7 @@ $$ v_1.v_2 = x_1x_2 + y_1y_2 + z_1z_2 $$
 $$v_1.v_2 = |v_1||v_2|\cos(\theta)$$
 ## 向量夹角
 
-$$\theta = \cos^{-1}(\frac{v_1v_2}{|v_1||v_2|}) $$
+$$\theta = \cos^{-1}\frac{v_1v_2}{|v_1||v_2|} $$
 
 ## 向量模叉乘
 $$|v_1\times v_2| = |v_1||v_2|\sin(\theta)$$
