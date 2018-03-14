@@ -93,8 +93,7 @@ p_x \\
 p_y \\
 p_z \\
 1
-\end{bmatrix}
-=
+\end{bmatrix}=
 \begin{bmatrix}
 s_xp_x \\
 s_yp_y \\
