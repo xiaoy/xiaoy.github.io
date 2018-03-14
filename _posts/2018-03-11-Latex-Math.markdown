@@ -117,8 +117,7 @@ p_x\\
 p_y\\
 p_z\\
 0
-\end{bmatrix}
-=
+\end{bmatrix}=
 \begin{bmatrix}
 p_x\\
 \cos(\theta)p_y -\sin(\theta)p_z\\
@@ -141,8 +140,7 @@ p_x\\
 p_y\\
 p_z\\
 0
-\end{bmatrix}
-=
+\end{bmatrix}=
 \begin{bmatrix}
 \cos(\theta)p_x + \sin(\theta)p_z\\
 p_y\\
@@ -166,8 +164,7 @@ p_x\\
 p_y\\
 p_z\\
 0
-\end{bmatrix}
-=
+\end{bmatrix}=
 \begin{bmatrix}
 \cos(\theta)p_x - \sin(\theta)p_y\\
 \sin(\theta)p_x + \cos(\theta)p_y\\
