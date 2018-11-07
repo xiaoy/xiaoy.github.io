@@ -92,3 +92,5 @@ friends: [
         href: "http://blog.csdn.net/hackmind"
     }
 ]
+
+theme: jekyll-theme-cayman
