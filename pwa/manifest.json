@@ -1,12 +1,13 @@
 {
-  "name": "wulongfei Blog",
+  "name": "wulongfei's Blog",
   "short_name": "wulongfei Blog",
   "description": "game developer.",
   "icons": [{
     "src": "icons/128.png",
     "sizes": "128x128",
     "type": "image/png"
-  }, {
+  }, 
+  {
     "src": "icons/512.png",
     "sizes": "512x512",
     "type": "image/png"
