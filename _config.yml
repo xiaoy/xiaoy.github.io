@@ -1,8 +1,8 @@
 # Site settings
-title: WuLongFei Blog
-SEOTitle: 武龙飞的博客 | WuLongFei Blog
+title: Focus Pixel 
+SEOTitle: Graphic | Light | 武龙飞 | 图形学 | opengl | vulkan | math
 email: zgwulongfei@gmail.com
-description: "武龙飞，游戏程序员"
+description: "自己个人博客，用来整理记录自己的碎片想法，也是自己成长经历的历史索引"
 keyword: "武龙飞，个人博客， 游戏程序员"
 url: "https://xiaoy.github.io"              # your host, for absolute URL
 baseurl: ""                             # for example, '/blog' if your blog hosted on 'host/blog'
