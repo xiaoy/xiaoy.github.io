@@ -18,21 +18,26 @@ tags:
 
 ## 三角形制作
 1. 使用3d制作工具创建3d模型
-2. 三角形每个顶点有自己的属性
+2. 三角形每个顶点有自己的属性(位置，法线，uv)
 
 ![](/img/in-post/2019-07-06-triangle-life/vertex.png)
 
 ## 导出和导入
 1. 使用3d软件将3d模型导出对应的模型文件 (fbx,3ds,dae,abc,ply,obj,x3d,stl)
-2. 再将3d模型导入游戏引擎，每个引擎有自己支持的格式
+2. 再将3d模型导入游戏引擎，每个引擎有自己支持的格式，将对应的文件加载为引擎自己需要的数据，再加工(比如Unity调整对应的对象属性)后来供游戏引擎改造后最终在游戏应用上渲染使用
 
 ## 渲染
 ### 游戏引擎
 游戏引擎需要处理的事情
+1. 将数据加载然后创建需要的对象
+2. 在CPU端通过相应的规则将不需要的数据舍弃
+3. 配置GPU端的状态属性，比如shader，渲染流程，模板，深度测试，融合方式，以及GPU端需要的数据从CPU端拷贝到GPU端显存，设置对应的渲染目标buffer
+4. 将绘制命令发送到GPU，继续第三步
 
 ![](/img/in-post/2019-07-06-triangle-life/game_engine.png)
 
 #### 创建网格，CPU端
+由于CPU需要从硬盘加载数据到内存，然后再将对应数据发送到GPU端供使用。因为GPU也是连接在CPU的BUS总线，所以需要CPU端发送数据到GPU。
 1. 所有的API同样的流程
 2. 为顶点创建缓存
 3. 为索引创建缓存
@@ -45,7 +50,7 @@ tags:
 ![](/img/in-post/2019-07-06-triangle-life/cpu_to_gpu_mesh.png)
 
 #### 可见性测试
-避免显卡多多余的工作，使用可见性测试，将看不见的物件剔除掉，使用以下两种方式：
+避免显卡多余的工作，使用可见性测试，将看不见的物件剔除掉，使用以下两种方式：
 
 1. 视椎体剔除 (Frustu culling)
 2. 遮挡剔除 (Occlusion culling)
@@ -57,10 +62,12 @@ tags:
 ![](/img/in-post/2019-07-06-triangle-life/graphics_driver.png)
 
 #### 图形接口
+供开发者使用，抽象层次更高，开发者只需按照对应的规则来设置GPU端渲染状态以及属性，同时组装命令，将命令发送出去。
 
 ![](/img/in-post/2019-07-06-triangle-life/graphics_api.png)
 
 #### 用户模式驱动
+驱动这层级，将上层API包装好的结构数据解析转换成GPU端使用的数据。
 
 ![](/img/in-post/2019-07-06-triangle-life/graphics_user_mode.png)
 
@@ -69,55 +76,68 @@ tags:
 ![](/img/in-post/2019-07-06-triangle-life/pm4_struct.png)
 
 #### 操作系统层的作用
+操作系统这个层级来检查命令的安全性。
 
 ![](/img/in-post/2019-07-06-triangle-life/operating_system.png)
 
 #### CPU 和 GPU 连接桥
+环状缓存，CPU指向写指针，GPU指向读指针
 
 ![](/img/in-post/2019-07-06-triangle-life/bridge.png)
 
 ## GPU 端介绍
 #### 命令处理器
+从环状缓存读取 Command Buffer，然后从 Command Buffer 解析出 Command，最后增加读缓存指针。
 
 ![](/img/in-post/2019-07-06-triangle-life/command_processor.png)
 
 #### 从 packet 解析出三角形信息
+Command Buffer 由 packet 组成，packet 里有三角形缓存地址信息。
 
 ![](/img/in-post/2019-07-06-triangle-life/triangle_info.png)
 
-#### GPU全流程
+#### GPU-命令处理器
+设置寄存器值，解析packet 命令。
 
 ![](/img/in-post/2019-07-06-triangle-life/all_gpu.png)
 
 #### GPU-几何处理器
+处理图片构成，然后将信息发送到着色处理器。
 
 ![](/img/in-post/2019-07-06-triangle-life/gpu_geometry_engine.png)
 
 #### GPU-着色输入处理器
+组装任务，发送到运算单元
 
 ![](/img/in-post/2019-07-06-triangle-life/gpu_shader_processor_input.png)
 
 #### GPU-运算单元
+运算单元可以读/写缓存，执行shader程序
 
 ![](/img/in-post/2019-07-06-triangle-life/gpu_compute_unit.png)
 
 #### GPU-着色导出处理器
+处理运算单元的输出任务
 
 ![](/img/in-post/2019-07-06-triangle-life/gpu_shader_export.png)
 
 #### GPU-基础图员汇编器
+将组成三角形的顶点发送到光栅化扫描器
 
 ![](/img/in-post/2019-07-06-triangle-life/gpu_primitive_assembler.png)
 
 #### 光栅化扫描器
+检测被三角形覆盖的像素，然后将像素点发送到着色处理器
 
 ![](/img/in-post/2019-07-06-triangle-life/gpu_scan_converter.png)
 
 #### 颜色和深度处理器
+根据深度/模板将被剔除的像素舍弃，然后将着色后的片元写入渲染目标缓存
 
 ![](/img/in-post/2019-07-06-triangle-life/gpu_color_depth.png)
 
 #### GPU处理完整流程
+整个完整渲染流程
 
 ![](/img/in-post/2019-07-06-triangle-life/gpu_unrolled.png)
 
@@ -206,7 +226,7 @@ tags:
 
 #### 显示到屏幕
 
-![](/img/in-post/2019-07-06-triangle-life/display.png)
+![](/img/in-post/2019-07-06-triangle-life/gpu_display.png)
 
 ## 参考
 
