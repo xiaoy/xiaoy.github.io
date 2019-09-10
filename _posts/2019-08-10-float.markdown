@@ -54,6 +54,9 @@ FPU控制字包含两位称作RC 字段来标识那种舍入方法。字段值�
 
 游戏开发中为了完成所有平台运算结果一致的问题，使用定点数代替浮点数来保证运算结果一致。
 
+## 浮点数转换为字符串
+游戏中经常需要显示浮点值，显示的内容为字符串。使用有效位`123456` 和`1.`组合出一个值 `1.123456`，然后再加上 $10^n$，最后结果为$1.123456\times 10^5$。如果指数位为零，直接使用结果$1.123456$。
+
 ## 参考
 [Demystifying Floating Point Precision](https://blog.demofox.org/2017/11/21/floating-point-precision/)
 [how-to-round-binary-fractions](https://blog.angularindepth.com/how-to-round-binary-fractions-625c8fa3a1af)
