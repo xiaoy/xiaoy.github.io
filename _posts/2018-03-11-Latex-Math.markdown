@@ -5,9 +5,8 @@ subtitle:   "游戏开发数学公式"
 date:   2018-03-11
 author: "wulongfei"
 tags:
-    - Latex
     - Math
-    - Game Program math
+    - 2018
 ---
 
 # 前言

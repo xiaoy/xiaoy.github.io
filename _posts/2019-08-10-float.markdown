@@ -6,6 +6,7 @@ date:   2019-08-10
 author: "wulongfei"
 tags:
     - math
+    - 2019
 ---
 
 ## 浮点数简介

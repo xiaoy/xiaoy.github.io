@@ -6,8 +6,7 @@ date:   2017-12-01
 author: "wulongfei"
 tags:
     - Unity3d
-    - Android
-    - dynamic lib
+    - 2017
 ---
 # 前言
 在接入360 Android SDK时遇到在有些机型的Android机器上报错，具体错误提示为：
