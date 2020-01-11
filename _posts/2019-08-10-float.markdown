@@ -3,7 +3,7 @@ layout:     post
 title:      "浮点数"
 subtitle:   "" 
 date:   2019-08-10
-author: "wulongfei"
+author: "武龙飞"
 tags:
     - math
     - 2019

@@ -3,7 +3,7 @@ layout:     post
 title:      "Latex数学速查手册"
 subtitle:   "游戏开发数学公式" 
 date:   2018-03-11
-author: "wulongfei"
+author: "武龙飞"
 tags:
     - Math
     - 2018

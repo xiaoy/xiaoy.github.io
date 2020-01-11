@@ -3,7 +3,7 @@ layout:     post
 title:      "Unity Android 加载动态库"
 subtitle:   "Android 加载动态库原理" 
 date:   2017-12-01
-author: "wulongfei"
+author: "武龙飞"
 tags:
     - Unity3d
     - 2017

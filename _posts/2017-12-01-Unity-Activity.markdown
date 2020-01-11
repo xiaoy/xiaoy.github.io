@@ -3,7 +3,7 @@ layout:     post
 title:      "Unity Android Activity 控制"
 subtitle:   "玩转Unity Android 启动Activity" 
 date:   2017-12-01
-author: "wulongfei"
+author: "武龙飞"
 tags:
     - Unity3d
     - 2017
