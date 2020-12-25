@@ -3,10 +3,10 @@ layout:     post
 title:      "Unity Android Activity 控制"
 subtitle:   "玩转Unity Android 启动Activity" 
 date:   2017-12-01
-author: "wulongfei"
+author: "武龙飞"
 tags:
     - Unity3d
-    - Android
+    - 2017
 ---
 # 前言
 开发游戏，在国内发行，接入各个渠道SDK是一件绕不开的事情。并且这件事非常复杂琐碎，原因如下：

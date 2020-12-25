@@ -3,7 +3,7 @@ layout:     post
 title:      "2017总结"
 subtitle:   "迟到的2017总结" 
 date:   2019-01-01
-author: "wulongfei"
+author: "武龙飞"
 tags:
     - 2017
     - 年终总结

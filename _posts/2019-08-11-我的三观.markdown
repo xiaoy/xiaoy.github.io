@@ -5,6 +5,8 @@ subtitle:   ""
 date:   2019-08-11
 author: "武龙飞"
 tags:
+    - 思想
+    - 2019
 ---
 
 ## 前言

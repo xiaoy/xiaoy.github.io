@@ -3,11 +3,11 @@ layout:     post
 title:      "四元数"
 subtitle:   "四元数笔记" 
 date:   2018-03-11
-author: "wulongfei"
+author: "武龙飞"
 tags:
-    - Latex
     - Math
-    - Game Program math
+    - 图形学 
+    - 2018
 ---
 
 # 前言

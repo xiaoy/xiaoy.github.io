@@ -1,0 +1,300 @@
+---
+layout:     post
+title:      "2012总结"
+subtitle:   "" 
+date:   2011-11-30
+author: "武龙飞"
+tags:
+    - 2012
+    - 年终总结
+---
+来公司四个半月了，从对客户端游戏编程的小白慢慢的也能写一些东西了，当然了这里最感谢的人就是九天了，对于九天其它的好我就不说了，就是感觉九天为了团队，为了项目，他在很用心的做每一件事情。就如武侠小说里的人物，有的练习功夫强身健体，有的为了取得江湖地位，有的为了报仇雪恨，当然有很少一部分当做兴趣爱好研究，比如说周伯通，他就是个武痴，对什么功夫都感兴趣。可是这些人里没有一项符合九天的，我认为九天喜欢将事情做的比较完美已经成为一种习惯，无论是代码方面还是说管理方面，处处为大家考虑，为公司考虑。到是他自己的事情考虑的很少，这里我就不举例子了，大家都懂得，:-D。要写总结，就忍不住感谢下九天，来公司这么长时间了，还没感谢过他。
+
+    刚开始接触客户端游戏，我只是本能的处于接受任务，完成任务。由于没有认真仔细的去思考这些任务，犯了很多低级的错误。其实这就是一种不负责任的表现方式，只是把任务当做任务完成了，但并没想这个东西是干什么用的，怎么用？用术语说的话，要实现什么功能，这个功能在什么地方要用？这里举个我第一次接收的一个小任务的例子：实现一个函数，这个函数实现的功能是设置不同语言，来实现多语言加载。当时我也没仔细想，就将这个函数写成了一个全局函数，放在config文件里。config文件是用来存储工程设置还有一些通用的全局变量的东西，我写在这里，一个是设置不方便，在一个也不符合config文件的性质。别看这是一个小小的函数，通过这个函数，程序里实现了不同国家语言的分离，只通过修改材质的后缀名就可以方便的切换不同国家的材质。
+
+```C++
+const string ConfigManager::GetResourceTextureName( const char* res_name ) {
+  std::string full_name(res_name);
+ 
+  switch (language_) {
+    case LAN_EN:
+      full_name += "_en.png";
+      break;
+    case LAN_CN:
+      full_name += "_cn.png";
+      break;
+    case LAN_KR:
+      full_name += "_kr.png";
+      break;
+    case LAN_JP:
+      full_name += "_jp.png";
+      break;
+    default:
+      CCAssert(0,"wrong language");
+      break;
+  }
+  return full_name;
+}
+```
+
+第二个比较典型的任务是金币仪表，截图如下:
+
+![](/img/in-post/year-summary/2012_task_1.gif)
+
+ 这个刚开始认为比较简单的一个任务，就是说根据当前玩家的分数移动每个位数的数字材质，表现出一个数字。分析下需求大概有以下几点要求：
+
+* 玩家数据加载时算好每个素材的位置
+* 监测到玩家数据有变化时材质根据数值变化，播放动作
+* 数字变化动作就如滚轮效果，0——9，9——0实现平滑过度
+* 数字不能同是播放所有位数的效果
+
+刚开始做的时候美术给出的是一个横版的材质，要做出竖版的效果，这可如何是好，经过和九天的讨论得出通过裁剪出每个小的数字材质，然后去控制小的数字材质，这期间遇到了很多问题。刚开始对cocos2d-x动作那套不是太懂，基本就会用个MoveTo（），对ccnode那套也不是很熟，对这些概念都不是很理解。所以每次要表现数字变化时，都先生成一个材质数组，然后算出每个小的材质到目标位置的相对的距离。在动画播放过程中，假如有新的动画，则先将数字变化存放在数组里，当然了一个是先进先出的模型。通过一周的折腾基本功能是实现了，但是效果不是很好，尤其0——9，9——0的突变没有处理好。并且还用的是单间模式，岂不知金币仪表只是ui层的一个功能模块，根本没有必要用单间，所以这个也是对功能没有想清楚。后来经过一周的折腾，发现这种方法太扭曲了，问题很多，经过和lyc，九天的商讨改变了材质，由横条改为竖条，就是这么简单的一改，问题一下简单化了很多，首先我们都知道圆柱面展开后是一个矩形，这样通过竖条的矩形就能很好的实现圆柱的功能，只要简单的在矩形9后面再补个0，就可以了。因为9之后就是0，0之前就是9，为了让动作的连贯性，动作播放完，立马调用setposition将材质设置一个位置。就简单的实现了滚动效果。功能实现了，效果还的慢慢调，游戏不就是要个感觉嘛，通过对动作的时间调整，最后实现了这个功能。回想起来这中间又很多值得学习的地方：
+
+* 在做任务的时候一定要想清楚功能，心里基本要明白通过什么方式去实现这个功能
+* 将一些常用的算数归纳为数学公式，大大方便运算。
+* 多和自己的同事交流，三人行必有我师，咱们这个团队都是很朴实的技术青年，对每个人的问题都很热心的。
+* 只有通过多做，对这个东西熟悉了，理解了，才能做出如工艺品的东西
+
+    sky项目的加密解密程序还是比较有意思的，这个程序是通过一套叫tea的算法，将程序的配置文件加密成为2进制文件，在程序启动的时候再进行解密。首先来看下加密算法：
+
+```C++
+
+void TEA::encrypt(const ulong *in, ulong *out) {
+    ulong *k = (ulong*)_key;
+	register ulong y = in[0];
+	register ulong z = in[1];
+	register ulong a = k[0];
+	register ulong b = k[1];
+	register ulong c = k[2];
+	register ulong d = k[3];
+	register ulong delta = 0x9E3779B9; /* (sqrt(5)-1)/2*2^32 */
+	register int round = _round;
+	register ulong sum = 0;
+ 
+	while (round--) {	/* basic cycle start */
+		sum += delta;
+		y += ((z << 4) + a) ^ (z + sum) ^ ((z >> 5) + b);
+		z += ((y << 4) + c) ^ (y + sum) ^ ((y >> 5) + d);
+	}	/* end cycle */
+	out[0] = y;
+	out[1] = z;
+}
+```
+  在这过程中首先的看懂这个加密函数，由于网上的例子是直接加密解密一个很短的字符串，我就天真的认为加密算法是传入一个char＊，然后通过加密传出一个`char*`，这样就加密好了。导致花了很多时间在查找为什么程序加密不对。再一个字符串都是以`'\0'`结尾的，由于对概念理解的不是很清楚，程序总是出现一些比较奇怪的问题。
+
+```C++
+const string TEA::SaveFile(const char* content)
+{
+  int file_size = strlen(content);
+  byte *plain = new byte[file_size + 1];
+  CharToByte((char*)content, plain, file_size);
+  byte *new_plain = new byte[file_size*8 + 1];
+  int k = 0;
+  for (int i = 0; i < file_size; ++i)
+  {
+    encrypt(plain + i, new_plain + k);
+    k += 8;
+  }
+  char *out = new char[file_size*8 + 1];
+  ByteToChar(new_plain, out, file_size * 8);
+  string crypt_str(out, file_size * 8);
+  delete []plain;
+  delete []new_plain;
+  delete []out;
+  return crypt_str;
+}
+```
+
+最后通过做这个功能模块收获四点：
+
+1. 申请内存的时候，要多申请一位，用来存储，结尾符号
+2. 读取字符串的时候都是以‘/0’结尾的，所以说对与2进制的数据流用strlen就不对了。
+3. strlen函数其实就是遍历数组每个字符，只到只到'/0'的时候返回遍历次数。
+4. 要有勇气和渴望多看看代码，明白了原理，问题也就不难了。
+
+
+这里大概说说程序里遇到一些问题，以及解决方案，增强自身的自备知识。
+
+游戏程序的运行机理，游戏程序的main函数是一个while函数，只到玩家退出程序，while循环结束。
+
+```C++
+int main()
+{
+    while(1)
+    {
+         if(g_run)
+         {
+              Tick(ts);
+              DrawScene();
+          }
+         else
+         {
+            break;
+          }
+     }
+    return 0;
+}
+```
+
+ 游戏程序和应用软件最大的区别就是，应用软件一直在等待着用户的输入，来相应用户的请求，而游戏程序就不同了，随着程序时间的配置，游戏通过drawscene不断的去渲染新的画面，说的通俗点就是输出一张张材质。材质本质上就是点的属性集合。比如一个顶点颜色属性颜色函数是通过color(uchar red, uchar green, uchar blue, uchar alpfa)。材质的像素就是来描述顶点数量的变量。像素越高表明材质越细腻。而游戏画面就是通过每秒播放材质的数量来描述的。这就是帧的概念，玩过flash的都懂得，如何通过设置没帧材质来实现简单的动画。说这么多就是要表达，游戏程序就是通过在合适的时间输出不同的材质。注意，我这里说的是游戏程序，而不是游戏。因为游戏是技术，美术，创意，音乐的集合体。就拿猎鸟里宠物馆里一个弹出对话框来说，这个lyc实现的，说个真心话，这一点我非常佩服lyc，他做游戏不是简简单单的去完成任务，而是通过一种审美的意识去看待每个模块的实现。虽说程序不能对整个游戏的整体表现有太大的决定权，但在细节的处理上加上自己的理解和爱，局部还是会非常出彩的。
+
+ ```C++
+
+void PetInfoDialog::Show() {
+  this->setScale(0.0f);
+  
+  CCScaleTo* scale = new CCScaleTo;
+  scale->initWithDuration(0.5f,1.0f);
+ 
+  CCEaseBackOut* ease = new CCEaseBackOut;
+  ease->initWithAction(scale);
+  scale->release();
+ 
+  runAction(ease);
+  ease->release();
+}
+ 
+void PetInfoDialog::Hide() {
+  CCScaleTo* scale = new CCScaleTo;
+  scale->initWithDuration(0.5f,0.0f);
+ 
+  CCEaseBackIn* ease = new CCEaseBackIn;
+  ease->initWithAction(scale);
+  scale->release();
+ 
+  CCCallFunc* call_func = new CCCallFunc;
+  if(!call_func->initWithTarget(this, callfunc_selector(PetInfoDialog::DestoryCallback) ) ) {
+    CCLog("call fun selector wrong");
+    return;
+  }
+ 
+  CCSequence* seq = new CCSequence;
+  seq->initOneTwo(ease, call_func);
+  ease->release();
+  call_func->release();
+ 
+  runAction(seq);
+  seq->release();
+}
+ ```
+
+学过c/c++的人都知道指针和内存管理是最难理解的，这里我就不详细说明内存管理的话题，只是说说在cocos2d-x里如何管理好自己的内存。cocos2d-x里的精灵都继承自CCobject类，先看看CCobjec自己申请和释放内存的原理。
+
+```C++
+CCObject::CCObject(void)
+{
+	static unsigned int uObjectCount = 0;
+ 
+	m_uID = ++uObjectCount;
+ 
+	// when the object is created, the refrence count of it is 1
+	m_uReference = 1;
+	m_bManaged = false;
+}
+
+void CCObject::release(void)
+{
+	assert(m_uReference > 0);
+	--m_uReference;
+ 
+	if (m_uReference == 0)
+	{
+		delete this;
+	}
+}
+```
+
+再来看看父类，我说的这个父类不是继承关系的父类，而是说装配层次的关系。父类调用addchild发生了什么。
+
+```C++
+void CCNode::addChild(CCNode *child, int zOrder, int tag)
+{	
+	CCAssert( child != NULL, "Argument must be non-nil");
+	CCAssert( child->m_pParent == NULL, "child already added. It can't be added again");
+ 
+	if( ! m_pChildren )
+	{
+		this->childrenAlloc();
+	}
+ 
+	this->insertChild(child, zOrder);
+ 
+	child->m_nTag = tag;
+ 
+	child->setParent(this);
+ 
+	if( m_bIsRunning )
+	{
+		child->onEnter();
+		child->onEnterTransitionDidFinish();
+	}
+}
+
+void CCNode::insertChild(CCNode* child, int z)
+{
+    unsigned int index = 0;
+    CCNode* a = (CCNode*) m_pChildren->lastObject();
+    if (!a || a->getZOrder() <= z)
+    {
+        m_pChildren->addObject(child);
+    }
+    else
+    {
+        CCObject* pObject;
+        CCARRAY_FOREACH(m_pChildren, pObject)
+        {
+            CCNode* pNode = (CCNode*) pObject;
+            if ( pNode && (pNode->m_nZOrder > z ))
+            {
+                m_pChildren->insertObject(child, index);
+                break;
+            }
+            index++;
+        }
+    }
+ 
+    child->setZOrder(z);
+}
+```
+
+通过源代码，得到结论如下：
+1. 精灵创建时，它的reference加1，relese的时候reference减1。
+2. 将精灵安装到父类的时候，父类会调用addobject，这样父类就会使精灵reference数加1，这就意为着精灵的生命周期又它的父类管理了。
+3. 如果不能一一对应的使reference的值加1和减1的话就会造成内存泄漏。
+4. 从程序里看出，每个sprite只能添加到一个父类上。
+
+另一个知识点为状态机：
+
+```C++
+
+void BackgroundAncientLayer::Update(cocos2d::ccTime ts)
+{
+  if ((torch_num_ < kTorchCount) && (torch_time_ += ts) > 1.0f)
+  {
+    SetTorchGui();
+    torch_time_ = 0;
+  }
+  switch(state_)
+  {
+  case STATE_START:
+    SetState(STATE_CLOUD_OUT);
+    break;
+  case STATE_CLOUD_OUT:
+#ifdef TARGET_IPHONE
+   PlayCloudAciton(ccp(1522.0f * kIphoneScaleFactor, 210.0f * kIphoneScaleFactor), 
+     ccp(-420.0f * kIphoneScaleFactor, 850.0f * kIphoneScaleFactor), 80.0f, 15.0f);  
+#else
+   PlayCloudAciton(ccp(1707.0f, 0), ccp(-568.0f, 895.0f), 80.0f, 15.0f);  
+#endif
+   SetState(STATE_END);
+  case STATE_END:
+    break;
+  default:
+    break;
+  }
+}
+```
+
+ 通过状态来标记程序运行的不同阶段，有以下几点好处：
+1. 思路比较清晰，在本例子中，很清晰的表明了要干的事情，这个例子比较简单，遇到复杂的状态很大程度上可以降低程序的出错率。
+2. 可以很容易的跳跃到不同的状态上。
