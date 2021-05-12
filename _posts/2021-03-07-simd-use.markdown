@@ -1,0 +1,248 @@
+---
+layout:     post
+title:      "SIMD使用"
+subtitle:   "" 
+date:   2021-03-07
+author: "武龙飞"
+tags: 
+    - C++,优化
+---
+
+## 前言
+上篇文章[SIMD介绍](./2021-02-07-simd-intro.markdown)说了SIMD的历史，以及SIMD汇编指令和寄存器，此篇文章讲述如何使用SIMD。使用SIMD有以下四个方案：
+
+* 使用库 
+* 使用Intrinsic
+* 使用汇编
+* 使用Intel 的 ispc
+
+出于学习的目的，这里使用Intrinsic。
+
+## Intrinsic 介绍
+Intrisic是Intel使用汇编编写的C函数，在编译时会展开为内联(inline)函数，所以没有调用函数的开销。使用起来比较像在C语言中使用汇编。支持基本的操作，比如`add,mul,div...`，也有自己的数学相关函数，比如`log,sin...`。Intel有个[网址](https://software.intel.com/sites/landingpage/IntrinsicsGuide/)专门来查询相关函数。
+
+数据类型由三部分组成，都是以`__m`开头，然后是长度`(128,256,512)`，最后是每条路径上的数据类型，默认空为float，其它为`d/i`分别为double和int。以下是基本数据类型举例，以及数据在内存中的排列。
+
+```C++
+__m128 f;           // {float f3, f2, f1, f0}
+__m128d d;          // {double d1, d0}
+__m128i i;          // {int i3, i2, i1, i0}
+__m256  f;          // {float f7, ..., f1, f0}
+__m512  f;          // {float f15, ..., f1, f0}
+```
+
+Intrinsic指令分为两种，Native指令是指直接和汇编指令是一对一的。Multi指令相当于一个函数，集成了几条指令，通过查看这些指令的类型，帮助我们衡量运行效率。例子如下：
+
+* Native instructions: _mm_add_ps(), _mm256_mul_pd(), ...
+* Multi-instruction: _mm_setr_ps(), _mm512_set1_pd(), ..
+
+Intrinsic还内置一些宏，来帮助我们更加简化程序的复杂性，也是分两类，一类为块操作，一类为简化程序的宏。例子如下：
+
+* Block operations: _MM_TRANSPOSE4_PS(), ...
+* Helper: _MM_GET_EXCEPTION_MASK()...
+
+## Intrinsic 指令介绍
+Intrinsic指令由三部分构成：`_mmxxx_<op>_<suffix>`，开头是以`_mmxxx`开头，其中xxx是长度，默认128时，`xxx`长度忽略，所以是`_mm`开头。然后是`op`操作指令，最后是后缀，比如：
+
+```C++
+float f[4] = {1.0f, 2.0f, 3.0f, 4.0f};
+// 寄存器中内容：|1.0f|2.0f|3.0f|4.0f|
+__m128 m = _mm_load_ps(f);
+// 等价于
+__m128 m = _mm_set_ps(4.0f, 3.0f, 2.0f, 1.0f);
+```
+其中`p`是*packed*，`s`是*single precision*。和`p`向对应的是`s`表示*scalar*， 和`s`对应的还有`d`。
+
+### Load and Store
+将内存中的值，或立即数赋值给操作变量(operand)，有两种方式：
+第一种通过load指令
+```C++
+// p 16byte -aligned
+__m128 a = _mm_load_ps(p);
+
+// p not aligned
+__m128 a = _mm_loadu_ps(P);
+```
+
+第二种set指令：
+
+```C++
+// 需要注意的是这些指令为组合指令
+__m128 a = _mm_set_ps(1.0f, 2.0f, 3.0f, 4.0f);
+```
+
+将操作变量赋值给内存，使用store指令：
+
+```C++
+// p 类型为:float* mem_addr，内存地址必须是16byte对齐
+// a 类型为:__m128
+_mm_store_ps(p, a);
+```
+### Constants
+常量赋值使用set指令担当：
+
+```C++
+// lsb
+// a = {1.0f, 2.0f, 3.0f, 4.0f}
+__m128 a = _mm_set_ps(4.0f, 3.0f, 2.0f, 1.0f);
+
+// b = {1.0f, 1.0f, 1.0f, 1.0f}
+__m128 b = _mm_set1_ps(1.0);
+
+// c = {1.0f, 0.0f, 0.0f, 0.0f}
+__m128 c = _mm_set_ss(1.0f);
+
+// d = {0.0f, 0.0f, 0.0f, 0.0f}
+__m128 d = _mm_setzero_ps();
+```
+
+### Arithmetic
+加法运算`__m128 c = _mm_add_ps(a, b);`的运算如图所示：
+
+```C++
+a->|1.0    |2.0    |3.0    |4.0    |
+                +
+b->|0.2    |0.4    |0.6    |0.8    |
+                ||
+c->|1.2    |2.4    |3.6    |4.8    |
+```
+
+常见的数组相加：
+
+```C++
+void arr_add(float* a, float* b, int n)
+{
+    for(int i = 0;i < n; ++i)
+    {
+        a[i] += b[i];
+    }
+}
+
+// n是4的倍数，a和b长度相等且都是16byte(4个float)对齐
+void v_arr_add(float* a, float* b, int n)
+{
+    for(int i = 0; i < n; i += 4)
+    {
+        __m128 v1 = _mm_load_ps(a + i);
+        __m128 v2 = _mm_load_ps(b + i);
+        __m128 v = _mm_add_ps(v1, v2); 
+        _mm_store_ps(a + i, v);
+    }
+}
+```
+
+
+### Comparison
+对比运算`__m128 c = _mm_cmpeq_ps(a, b);`的运算如图所示：
+
+```C++
+a->|1.0         |2.0            |3.0            |4.0            |
+                                == 
+b->|1.0         |0.4            |3.0            |0.8            |
+                                ||
+c->|0xffffffff  |0x0            |0xffffffff     |0x0            |
+```
+如果对比结果为`true`运算结果为`0xffffffff`，如果运算结果为`false`则运算结果为`0x0`。
+
+来看一个例子：
+
+```C++
+void saturate_arr(float* a, int n)
+{
+    for(int i = 0; i < n; ++i)
+    {
+        if(a[i] > 1)
+        {
+            a[i] = 1;
+        }
+        else if(a[i] < 0)
+        {
+            a[i] = 0;
+        }
+    }
+}
+
+void v_saturate_arr(float* a, int n)
+{
+    __m128 vmax = _mm_set1_ps(1.0f);
+    __m128 vmin = _mm_set1_ps(0.0f);
+    for(int i = 0; i < n; i+=4)
+    {
+        __m128 va = _mm_load_ps(a + i);                 // -0.2f, 1.4f      , 0.2f, 0.8f
+
+        __m128 hmask = _mm_cmpgt_ps(va, vmax);          // 0    , 0xffffffff, 0   , 0
+        __m128 hva = _mm_and_ps(hmask, va);             // 0    , 1.4f      , 0   , 0
+        __m128 lva_left = _mm_sub_ps(va, hva);          // -0.2f, 0         , 0.2f, 0.8f 
+        __m128 hone = _mm_and_ps(hmask, vmax);          // 0    , 1.0f      , 0   , 0
+        __m128 hva_one = _mm_add_ps(lva_left, hone);    // -0.2f, 1.0f      , 0.2f, 0.8f
+
+        __m128 lmask = _mm_cmplt_ps(va, vmin);          // 0xfffffff, 0    , 0   , 0
+        __m128 lva = _mm_and_ps(va, lmask);             // -0.2f    , 0    , 0   , 0 
+        __m128 hva_left = _mm_sub_ps(hva_one, lva);     // 0        , 1.0f , 0.2f, 0.8f
+
+        _mm_store_ps(a + i, hva_left);
+    }
+
+```
+
+### Shuffles
+首先来看取`a`和`b`的三位和四位组合成新的变量`c`，`_mm_unpackhi_ps(__m128 a, __m128 b)`表示如下：
+
+```C++
+// a 和 b为LSB，从左至右索引依次为 0,1,2,3
+a->|1.0         |3.0            |5.0            |7.0            |
+                                
+b->|2.0         |4.0            |6.0            |8.0            |
+                                ||
+c->|5.0         |6.0            |7.0            |8.0            |
+```
+
+`_mm_unpacklo_ps(__m128 a, __m128 b)`表示如下：
+
+```C++
+// a 和 b为LSB，从左至右索引依次为 0,1,2,3
+a->|1.0         |3.0            |5.0            |7.0            |
+                                
+b->|2.0         |4.0            |6.0            |8.0            |
+                                ||
+c->|1.0         |2.0            |3.0            |4.0            |
+```
+
+`__m128 _mm_shuffle_ps (__m128 a, __m128 b, unsigned int imm8)`表示如下：
+```C++
+// a 和 b为LSB，从左至右索引依次为 0,1,2,3
+// __m128有4路浮点值，二进制2位(00-11)，可以标识4路
+// imm8 前8位，每两位取值得到一个索引(index)，每个索引取值如下：
+// [1:0] 所得到的index去a中选取值
+// [3:2] 所得到的index去a中选取值
+// [5:4] 所得到的index去b中选取值
+// [7:6] 所得到的index去b中选取值
+// imm8的值假设为：0x01 11 00 10
+a->|1.0         |3.0            |5.0            |7.0            |
+                                
+b->|2.0         |4.0            |6.0            |8.0            |
+                                ||
+c->|5.0         |1.0            |8.0            |4.0            |
+```
+
+```C++
+float sum_simd(const float* a, size_t n)
+{
+    __m128 sRet = _mm_set1_ps(0);
+    for(size_t i = 0; i < n; i+=4)
+    {
+        __m128 m = _mm_load_ps(&a[i]);
+        sRet = _mm_add_ps(sRet, m);
+    }
+                                                                // 1, 2, 3, 4
+    __m128 tmp = _mm_unpackhi_pd(sRet, sRet);                   // 3, 4, 3, 4
+    tmp = _mm_add_ps(tmp, sRet);                                // 4, 6, 6, 8
+    sRet = _mm_shuffle_ps(tmp, tmp, _MM_SHUFFLE(0, 0, 0, 1));   // 6, 4, 4, 4 -> 00, 00, 00, 01
+    sRet = _mm_add_ps(tmp, sRet);                               // 10, 12, 10, 14
+
+    return *(float*)&sRet;
+}
+```
+
+## 总结
+本篇文章介绍了Intel的Intrinsic数据类型，以及常用函数。通过这些基本指令的学习，可以帮助后续实践过程中更深的认知。
