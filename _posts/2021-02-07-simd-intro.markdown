@@ -11,7 +11,7 @@ tags:
 ## 介绍
 SIMD(Single instruction, multiple Data)，是并行运算的一个种类。硬件支持使用单条指令，同时处理多个数据的运算操作。
 
-![simd](../img/in-post/2021-02-07-simd-intro/simd_vs_scale.jpg)
+![simd](/img/in-post/2021-02-07-simd-intro/simd_vs_scale.jpg)
 
 上图中使用单条指令需要执行四次得到运算结果，SIMD只需要执行行一次即可得到结果。
 
