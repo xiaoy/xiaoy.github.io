@@ -9,7 +9,7 @@ tags:
 ---
 
 ## 前言
-上篇文章[SIMD介绍](./2021-02-07-simd-intro.markdown)说了SIMD的历史，以及SIMD汇编指令和寄存器，此篇文章讲述如何使用SIMD。使用SIMD有以下四个方案：
+上篇文章[SIMD介绍](https://xiaoy.github.io/2021/02/07/simd-intro/)说了SIMD的历史，以及SIMD汇编指令和寄存器，此篇文章讲述如何使用SIMD。使用SIMD有以下四个方案：
 
 * 使用库 
 * 使用Intrinsic

@@ -11,7 +11,7 @@ tags:
 ## 介绍
 SIMD(Single instruction, multiple Data)，是并行运算的一个种类。硬件支持使用单条指令，同时处理多个数据的运算操作。
 
-![](../img/in-post/2021-02-07-simd-intro/simd_vs_scale.jpg)
+![simd](../img/in-post/2021-02-07-simd-intro/simd_vs_scale.jpg)
 
 上图中使用单条指令需要执行四次得到运算结果，SIMD只需要执行行一次即可得到结果。
 
@@ -310,4 +310,4 @@ sum_simd(float const*, unsigned long):  # @sum_simd(float const*, unsigned long)
 ```
 
 ## 总结
-本篇介绍了SIMD的是什么，以及SIMD指令被引入的时间点。然后介绍了SIMD汇编指令，以及寄存器，最后通过求和函数的汇编代码熟悉了使用SIMD指令和使用X86指令的区别。下一篇介绍如何[使用SIMD](2021-03-07-simd-use.markdown)。
+本篇介绍了SIMD的是什么，以及SIMD指令被引入的时间点。然后介绍了SIMD汇编指令，以及寄存器，最后通过求和函数的汇编代码熟悉了使用SIMD指令和使用X86指令的区别。下一篇介绍如何[使用SIMD](https://xiaoy.github.io/2021/03/07/simd-use/)。
