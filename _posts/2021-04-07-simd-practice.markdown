@@ -80,7 +80,7 @@ simd_dot(Vec4 const&, Vec4 const&):            # @simd_dot(Vec4 const&, Vec4 con
 ```
 
 如果有成百上千的`Vec4`需要求点积，这里就需要转换数据结构：
-![](img/in-post/2021-04-07-simd-practise/tag-bg.gif)
+![](/img/in-post/2021-04-07-simd-practise/tag-bg.gif)
 
 ```C++
 struct Vec4_AOS
