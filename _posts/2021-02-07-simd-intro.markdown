@@ -165,7 +165,7 @@ xmm通过划分运算路径(path)数量，对应不同的数据类型长度：
 // 需要注意的是这是AT&T风格的汇编指令
 // AT&T 和 Intel汇编指令的区别为
 // AT&T 可以看做是 source op target -> target
-// Intel 可以看做是 target = target op target
+// Intel 可以看做是 target = target op src
 
 |---------------|---------------|---------------|---------------|   xmm0
                                 +=
