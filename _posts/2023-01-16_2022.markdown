@@ -2,7 +2,7 @@
 layout:     post
 title:      "2022总结"
 subtitle:   "" 
-date:   2022-01-26
+date:   2023-01-26
 author: "武龙飞"
 tags: 
     - 2022
